@@ -39,7 +39,7 @@ class User(BaseModel):
 class Response(BaseModel):
     code: int
     msg: str
-    data: dict
+    data: dict | str
 
 
 class Request(BaseModel):
@@ -55,6 +55,18 @@ def get_user_portrait(req: Request):
     resp = get_user(req.content)
     print(resp)
     return Response(code=1, msg="success", data=json.loads(resp))
+
+
+class Cont(BaseModel):
+    text: str
+
+
+from src.client import add_and_run
+
+@app.post("/content", response_model=Response)
+def get_content(req: Cont):
+    thread_messages = add_and_run(req.text, "asst_hBzEVeRj4SvWTiRzzZpIRC6B")
+    return Response(code=1, msg="success", data=thread_messages.data[0].content[0].text.value)
 
 
 if __name__ == '__main__':

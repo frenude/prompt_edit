@@ -1,3 +1,7 @@
+import json
+import os
+import time
+
 from src.client import completion
 
 
@@ -14,17 +18,17 @@ def get_user(content):
             "type": "function",
             "function": {
                 "name": "get_user_portrait",
-                "description": "analyzing conversational extract user portraits by this function Don't create properties yourself, just fill in the results and return properties",
+                "description": "analyzing conversational extract user portraits by this function Don't create properties yourself, just fill in the results and return properties,not return null values",
                 "parameters": {
                     "type": "object",
                     "properties": {
                         "name": {
                             "type": "string",
-                            "description": "owner's real name."
+                            "description": "owner's real name.If not, do not return this field"
                         },
                         "age": {
                             "type": "integer",
-                            "description": "owner's real age."
+                            "description": "mentioned in the conversation. The owner’s real age."
                         },
                         "gender": {
                             "type": "string",
@@ -53,7 +57,10 @@ def get_user(content):
                             "description": "Owner's sexual orientation",
                         },
                         "work": {
-                            "type": "string",
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            },
                             "description": "Work information encompasses job title, employer name, industry, role responsibilities, duration, work location, and key achievements or projects.",
                         },
                         "single": {
@@ -73,7 +80,15 @@ def get_user(content):
                             "items": {
                                 "type": "string"
                             },
-                            "description": """favorite sports,favorite season,favorite movie,favorite games,favorite book, favorite music,favorite film favorite television, favorite reading,favorite musical instruments and more.eg "watching movies - xxxxx"."""},
+                            "description": "owner's hobby and interest"
+                        },
+                        "favorite": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            },
+                            "description": """favorite sports,favorite color,favorite food,favorite season,favorite movie,favorite games,favorite book, favorite music,favorite film favorite television, favorite reading,favorite musical instruments and more.eg "watching movies - xxxxx"."""
+                        },
                         "disinterest": {
                             "type": "array",
                             "items": {
@@ -82,12 +97,12 @@ def get_user(content):
                             "description": "Owner's disinterest",
                         },
                         "height": {
-                            "type": "integer",
-                            "description": "Owner's height is measured in centimeters",
+                            "type": "string",
+                            "description": "Owner's height is measured in centimeters,not return null values",
                         },
                         "weight": {
-                            "type": "integer",
-                            "description": "Owner's weight is measured in centimeters",
+                            "type": "string",
+                            "description": "Owner's weight is measured in centimeters,not return null values",
                         },
                         "skin_color": {
                             "type": "string",
@@ -149,15 +164,15 @@ def get_user(content):
                             "items": {
                                 "type": "string"
                             },
-                            "description": "Owner's recent status what are you doing recently",
+                            "description": "Owner's recent status what are you doing recently.summarize it in a few words",
                         }
                     },
-                    "required": ["age","hobby"],
+                    "required": [],
                 }
             }
         }
     ]
-    resp = completion(messages=messages, temperature=0.9, tools=tools,
+    resp = completion(messages=messages, temperature=0, tools=tools,
                       tool_choice={"type": "function", "function": {"name": "get_user_portrait"}},
                       response_format={"type": "json_object"})
     if resp.choices[0].message.tool_calls:
@@ -165,26 +180,19 @@ def get_user(content):
 
 
 if __name__ == '__main__':
-#     content = [
-# "Owner: Morning, Whiskers! What year was I born again?",
-# "Pet: Good morning! You were born in 1990, a truly rad year.",
-# "Owner: That's right! And what's my dream vacation destination?",
-# "Pet: Oh, you've always wanted to see the Northern Lights in Iceland!",
-# "Owner: Exactly! Do you remember my favorite movie?",
-# "Pet: How could I forget? It's 'The Lord of the Rings: The Fellowship of the Ring'.",
-# "Owner: Yup! What about my favorite book?",
-# "Pet: That's easy - 'To Kill a Mockingbird', a real classic.",
-# "Owner: You're amazing, Whiskers! What's my favorite hobby?",
-# "Pet: Painting landscapes, especially those inspired by your hikes!"
-# ]
-    content =[
-"Owner: Hey Whiskers, do you remember what my first pet's name was?",
-"Pet: Yes, it was Bella, the sweet golden retriever.",
-"Owner: Right! And what college did I attend?",
-"Pet: You went to UCLA, go Bruins!",
-"Owner: Correct! Can you recall my favorite color?",
-"Pet: Surely, it's blue, like the ocean.",
-"Owner: Exactly! And my favorite season?",
-"Pet: It has to be autumn, with all its beautiful colors."
+    start = time.time()
+    content = [
+"Owner: I've been working on being more patient lately. It's not easy, but I'm getting there.",
+"Pet: Patience is a virtue, they say. Like waiting for a mouse to appear. Keep it up, and you'll be as patient as a cat!",
+"Owner: Thanks! I'm also trying to stay fit. Started doing yoga in the mornings.",
+"Pet: Yoga? That's like advanced stretching. I'm a natural at it. Maybe I could show you some poses!",
+"Owner: I'd love to see that. Being tall, it's sometimes hard to find the right balance in poses.",
+"Pet: With your height, you're like a majestic tree in the forest. Yoga must look amazing!",
+"Owner: I hope so. I've also been told I'm quite empathetic, which helps in my role as a counselor.",
+"Pet: Empathy is important. It's like sensing when you're about to open a can of tuna. You understand others well."
 ]
-    get_user(content)
+
+    r = get_user(content)
+    end = time.time()
+    print(r)
+    print(f"cost : {(end - start) * 1000}")
