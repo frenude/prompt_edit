@@ -43,7 +43,7 @@ def pipline(file_name):
 from src.portrait.color import mark_rows_below_threshold
 
 if __name__ == '__main__':
-    file = 'c.xlsx'
-    for i in range(30):
+    file = '1122-1.xlsx'
+    for i in range(200):
         pipline(file)
     mark_rows_below_threshold(file)
