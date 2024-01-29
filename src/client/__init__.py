@@ -11,17 +11,27 @@ from openai.types.chat import ChatCompletionMessageParam, ChatCompletion, ChatCo
 
 from src.conf import cfg
 
-client = OpenAI(api_key=cfg.openai.api_key) if cfg.openai.default else AzureOpenAI(
-    api_version=cfg.azure.api_version,
-    azure_endpoint=cfg.azure.azure_endpoint,
-    api_key=cfg.azure.api_key
-)
+llm = {
+    "openai": {"client": OpenAI(api_key=cfg.openai.api_key), "model": cfg.openai.model},
+    "azure": {"client": AzureOpenAI(
+        api_version=cfg.azure.api_version,
+        azure_endpoint=cfg.azure.azure_endpoint,
+        api_key=cfg.azure.api_key
+    ), "model": cfg.azure.model},
+    "moonshot": {"client": OpenAI(
+        api_key=cfg.moonshot.api_key,
+        base_url=cfg.moonshot.base_url,
+    ), "model": cfg.moonshot.model}
+}
+client = llm[cfg.default.llm]["client"]
 
 
 def completion(messages: List[ChatCompletionMessageParam], temperature: float,
                tools: List[ChatCompletionToolParam] | NotGiven = NOT_GIVEN,
-               tool_choice: ChatCompletionToolChoiceOptionParam | NotGiven = NOT_GIVEN,response_format:completion_create_params.ResponseFormat | NotGiven = NOT_GIVEN) -> ChatCompletion | Stream[
-    ChatCompletionChunk]:
+               tool_choice: ChatCompletionToolChoiceOptionParam | NotGiven = NOT_GIVEN,
+               response_format: completion_create_params.ResponseFormat | NotGiven = NOT_GIVEN) -> ChatCompletion | \
+                                                                                                   Stream[
+                                                                                                       ChatCompletionChunk]:
     """
     :param messages:
            messages = [
@@ -62,7 +72,7 @@ def completion(messages: List[ChatCompletionMessageParam], temperature: float,
              function call resp.choices[0].message.tool_calls[0].function.arguments
     """
     return client.chat.completions.create(
-        model=cfg.openai.model if cfg.openai.default else cfg.azure.model,
+        model=llm[cfg.default.llm]["model"],
         messages=messages,
         temperature=temperature,
         tools=tools,

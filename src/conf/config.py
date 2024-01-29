@@ -4,7 +4,6 @@ from pydantic import BaseModel
 class Openai(BaseModel):
     api_key: str
     model: str
-    default: bool
 
 
 class Azure(BaseModel):
@@ -14,6 +13,18 @@ class Azure(BaseModel):
     model: str
 
 
+class Moonshot(BaseModel):
+    base_url: str
+    api_key: str
+    model: str
+
+
+class Default(BaseModel):
+    llm: str
+
+
 class Config(BaseModel):
+    default: Default
     openai: Openai
     azure: Azure
+    moonshot: Moonshot
