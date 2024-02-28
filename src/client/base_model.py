@@ -61,3 +61,4 @@ class BaseSchemaModel(BaseModel):
     def schema_json(cls, without_title: bool = True, **kwargs) -> str:
         schema_dict: dict = cls.schema(without_title, **kwargs)
         return json.dumps(schema_dict, ensure_ascii=False)
+
