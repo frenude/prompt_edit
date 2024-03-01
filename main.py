@@ -1,11 +1,9 @@
-from typing import List, Literal
-
-from pydantic import Field
-
-from src.client.base_model import BaseSchemaModel
 from src.client import completion
-
-
+import pandas as pd
+def random_chat_contents(path:str):
+   df = pd.read_csv(path)
+   
+   
 def portrait3(contents: str):
     messages = []
     resp_format = {
@@ -31,7 +29,6 @@ def portrait3(contents: str):
         "lifestyle": "An array that describes the user's lifestyle, including daily routines, eating habits, exercise habits, and other recreational activities.",
         "constellation": "The astrological sign or constellation of the user, if mentioned in the conversation.",
         "mbti": "Reflects the user's Myers-Briggs Type Indicator, if provided.",
-        "recent_status": "An array summarizing the user's recent activities or current life situation, as described in the conversation.",
     }
     messages.append({
         "role": "system",
